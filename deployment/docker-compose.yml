@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+  goaccess_log_analyzer:
+    image: allinurl/goaccess
+    container_name: goaccess_log_analyzer
+    restart: on-failure
+    depends_on:
+      - goaccess_log_follower
+    ports:
+      - "7890:7890"
+    env_file:
+      - ./deployment.env
+    volumes:
+      - report:/srv/report
+      - log:/srv/logs
+      - ${DEPLOYED_PATH}/goaccess.conf:/srv/data/goaccess.conf
+      - ${DEPLOYED_PATH}/goaccess.sh:/home/goaccess.sh
+    entrypoint: sh /home/goaccess.sh
+
+  goaccess_nginx:
+      image: nginx
+      container_name: goaccess_nginx
+      restart: on-failure
+      depends_on:
+        - goaccess_log_analyzer
+      volumes:
+        - report:/usr/share/nginx/html
+
+  goaccess_nginx_auth:
+      image: keisato/nginx-basic-auth-proxy
+      container_name: goaccess_nginx_auth
+      restart: always
+      env_file:
+        - ./../env/basic_auth.env
+      environment:
+        - BACKEND=goaccess_nginx:80
+      depends_on:
+        - goaccess_nginx
+      ports:
+        - "${DASHBOARD_PORT}:80"
+
+  goaccess_log_follower:
+      image: vimagick/openssh
+      container_name: goaccess_log_follower
+      restart: on-failure
+      env_file:
+        - ./../env/ssh.env
+        - ./deployment.env
+      volumes:
+        - log:/home/logs
+        - ${DEPLOYED_PATH}/log_follower.sh:/home/log_follower.sh
+        - ${DEPLOYED_PATH}/id_rsa:/root/.ssh/id_rsa
+      entrypoint: ash /home/log_follower.sh
+
+volumes:
+  log:
+  report:
