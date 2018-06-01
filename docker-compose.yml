@@ -36,7 +36,7 @@ services:
           - "${DASHBOARD_PORT}:80"
 
   goaccess_log_follower:
-      image: vimagick/openssh
+      image: kroniak/ssh-client
       container_name: goaccess_log_follower
       env_file:
         - ./env/ssh.env
