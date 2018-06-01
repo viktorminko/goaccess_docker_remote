@@ -3,13 +3,13 @@ Docker infrastructure to run GoAccess using log file from remote host
 
 Based on [GoAccess](https://goaccess.io/)
 
-##Requirements
+## Requirements
 
  - [docker](https://docs.docker.com/engine/installation/) 
  - [docker-compose](https://docs.docker.com/compose/install/)
  - private SSH key which allows to connect to remote server and read log
  
-##Installation
+## Installation
 
   - Clone git repo
   - Rename all *.env.sample files to corresponded *.env files and set configuration variables  
